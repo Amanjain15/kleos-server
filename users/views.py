@@ -27,7 +27,7 @@ def user_sign_up(request):
 			print email
 			password=keys.KEY_DEFAULT_PASSWORD
 			encoded_password = jwt.encode({keys.KEY_PASSWORD: str(password)}, keys.KEY_PASSWORD_ENCRYPTION,algorithm='HS256')
-			print "Password Encoded" + encoded_password
+			print "Password Encoded " + encoded_password
 
 			current_date = date.today()
 			print current_date
@@ -35,13 +35,13 @@ def user_sign_up(request):
 			try:
 				user_instance= UserData.objects.filter(mobile=mobile)
 				if user_instance.exists() :
-					user_instance = user_instance.objects.get(mobile=mobile)
+					user_instance = UserData.objects.get(mobile=mobile)
 					if OtpData.objects.get(user=user_instance).verified:
-						print("User OTP is verified")
-						response[keys.KEY_SUCCESS] = False
-						response[keys.KEY_MESSAGE] = "User Already Exists. Please Login !"
+						print "User OTP is verified"
+						response_json[keys.KEY_SUCCESS] = False
+						response_json[keys.KEY_MESSAGE] = "User Already Exists. Please Login !"
 					else :
-						print("User OTP is not verified")
+						print "User OTP is not verified"
 						user_instance = user_instance.objects.get(mobile=mobile)
 						setattr(user_instance, 'name', name)
 						setattr(user_instance, 'email', email)
@@ -49,7 +49,7 @@ def user_sign_up(request):
 						setattr(user_instance, 'college', "")
 						user_instance.save()
 						otp = random.randint(1000, 9999)
-						print "OTP " + otp
+						print "OTP " + str(otp)
 						message = 'Welcome to Kleos. Your One Time Password is ' + str(otp)
 						send_sms(mobile, message)
 						try:
@@ -76,7 +76,7 @@ def user_sign_up(request):
 													algorithm='HS256')
 					print(temp_access_token)
 					otp = random.randint(1000, 9999)
-					print "OTP " + otp
+					print "OTP " + str(otp)
 					message = 'Welcome to Kleos. Your One Time Password is ' + str(otp)
 					send_sms(mobile, message)
 					user_instance = UserData.objects.create(
@@ -92,15 +92,16 @@ def user_sign_up(request):
 					response_json[keys.KEY_MESSAGE] = "OTP successfully sent, Please verify OTP"
 
 			except Exception as e:
-				response[keys.KEY_SUCCESS] = False
-				response[keys.KEY_MESSAGE] = "Error " + str(e)
 				print str(e)
+				response_json[keys.KEY_SUCCESS] = False
+				response_json[keys.KEY_MESSAGE] = "Error " + str(e)
 		except Exception as e:
 			print str(e)
 			response_json[keys.KEY_SUCCESS] = False
 			response_json[keys.KEY_MESSAGE] = str(e)
 	print response_json
 	return JsonResponse(response_json)			
+
 
 @csrf_exempt
 def verify_otp(request):
@@ -114,7 +115,7 @@ def verify_otp(request):
 			print mobile
 			otp = request.POST.get(keys.KEY_OTP)
 			print otp
-			user_instance = UserData.objects.get(mobile=mobile)
+			user_instance = UserData.objects.filter(mobile=mobile)
 			if user_instance.exists():
 				otp_instance = OtpData.objects.filter(user=user_instance, otp=otp)
 				if otp_instance.exists():
@@ -129,12 +130,15 @@ def verify_otp(request):
 					try:
 						response_college = college_data()
 						if(response_college[keys.KEY_SUCCESS]) :
-							response_json[keys.KEY_COLLEGE_LIST]=response_college[keys.KEY_COLLEGE_LIST]
+							response[keys.KEY_COLLEGE_LIST]=response_college[keys.KEY_COLLEGE_LIST]
+							print str(response_college[keys.KEY_COLLEGE_LIST])
 						else :
 							print "Error in Getting College List " + response_college[keys.KEY_MESSAGE]
 					except Exception as e:
-						print "Error in Getting College List " + str(e) + " " + response_college[keys.KEY_MESSAGE]
-					response[keys.KEY_NAME] = user_instance.name
+						print str(e)
+						print "Error in Getting College List " + str(e) + " " + str(response_college[keys.KEY_MESSAGE])
+					user_instance = UserData.objects.get(mobile=mobile)
+					response[keys.KEY_NAME] = str(user_instance.name)
 					response[keys.KEY_ACCESS_TOKEN] = access_token
 					response[keys.KEY_SUCCESS] = True
 					response[keys.KEY_MESSAGE] = "Otp Verified"
@@ -145,8 +149,9 @@ def verify_otp(request):
 				response[keys.KEY_SUCCESS] = False
 				response[keys.KEY_MESSAGE] = "User does not exists"
 		except Exception as e:
+			print str(e)
 			response[keys.KEY_SUCCESS] = False
-			response[keys.KEY_MESSAGE] = "Something went wrong" + str(e)
+			response[keys.KEY_MESSAGE] = "Something went wrong " + str(e)
 	print(response)
 	return JsonResponse(response)
 
@@ -182,14 +187,15 @@ def resend_otp(request):
 	print(response_json)
 	return JsonResponse(response_json)
 
+
 @csrf_exempt
 def user_login(request):
 	if request.method == 'POST':
 		response = {}
 		try:
-			mobile = request.POST.get(keys.KEY_REQUEST_MOBILE)
+			mobile = request.POST.get(keys.KEY_MOBILE)
 			print mobile
-			password = request.POST.get(keys.KEY_REQUEST_PASSWORD)
+			password = request.POST.get(keys.KEY_PASSWORD)
 			print password
 			encoded_password = jwt.encode({'password': str(password)}, keys.KEY_PASSWORD_ENCRYPTION, algorithm='HS256')
 			print encoded_password
@@ -197,7 +203,7 @@ def user_login(request):
 			if user_instance.exists():
 				response[keys.KEY_SUCCESS] = True
 				response[keys.KEY_MESSAGE] = "Successful"
-				access_token = jwt.encode({keys.KEY_JWT_ACCESS_TOKEN: str(mobile)}, keys.KEY_ACCESS_TOKEN_ENCRYPTION,
+				access_token = jwt.encode({keys.KEY_ACCESS_TOKEN: str(mobile)}, keys.KEY_ACCESS_TOKEN_ENCRYPTION,
 											algorithm='HS256')
 				response[keys.KEY_ACCESS_TOKEN] = access_token
 
@@ -210,6 +216,7 @@ def user_login(request):
 			print(str(e))
 	print(response)
 	return JsonResponse(response)
+
 
 @csrf_exempt
 def update_user_details(request):
@@ -224,33 +231,33 @@ def update_user_details(request):
 			print password
 			access_token = request.POST.get(keys.KEY_ACCESS_TOKEN)
 			print access_token
-			json1 = jwt.decode(str(access_token), keys.KEY_TEMP_ACCESS_TOKEN_ENCRYPTION, algorithms=['HS256'])
+			json1 = jwt.decode(str(access_token), keys.KEY_ACCESS_TOKEN_ENCRYPTION, algorithms=['HS256'])
 			mobile = str(json1['access_token'])
 			encoded_password = jwt.encode({keys.KEY_PASSWORD: str(password)}, keys.KEY_PASSWORD_ENCRYPTION,algorithm='HS256')
 			print "Password Encoded" + encoded_password
 
 			try:
-				user_instance = UserData.objects.get(mobile=mobile)
+				user_instance = UserData.objects.filter(mobile=mobile)
 				if user_instance.exists() :
 					try:
-						user_instance = user_instance.objects.get(mobile=mobile)
+						user_instance = UserData.objects.get(mobile=mobile)
 						if OtpData.objects.get(user=user_instance).verified:
 							print("User OTP is verified")
 							setattr(user_instance, 'name', name)
 							setattr(user_instance, 'password', encoded_password)
 							setattr(user_instance, 'college', college)
 							user_instance.save()
-							response[keys.KEY_SUCCESS] = True
-							response[keys.KEY_MESSAGE] = "User Details Saved"	
+							response_json[keys.KEY_SUCCESS] = True
+							response_json[keys.KEY_MESSAGE] = "User Details Saved"	
 						else:
-							response[keys.KEY_SUCCESS] = False
-							response[keys.KEY_MESSAGE] = "OTP Not Verified"		
+							response_json[keys.KEY_SUCCESS] = False
+							response_json[keys.KEY_MESSAGE] = "OTP Not Verified"		
 					except Exception as e:
-						response[keys.KEY_SUCCESS] = False
-						response[keys.KEY_MESSAGE] = str(e)	
+						response_json[keys.KEY_SUCCESS] = False
+						response_json[keys.KEY_MESSAGE] = str(e)	
 			except Exception as e:
-				response[keys.KEY_SUCCESS] = False
-				response[keys.KEY_MESSAGE] = str(e)
+				response_json[keys.KEY_SUCCESS] = False
+				response_json[keys.KEY_MESSAGE] = str(e)
 		except Exception as e:
 			print str(e)
 			response_json[keys.KEY_SUCCESS] = False

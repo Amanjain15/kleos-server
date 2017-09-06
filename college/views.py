@@ -24,4 +24,4 @@ def college_data():
 		response_json[keys.KEY_SUCCESS] = False
 		response_json[keys.KEY_MESSAGE] = "College List does not exists."
 		print(response_json)
-	return JsonResponse(response_json)
+	return response_json

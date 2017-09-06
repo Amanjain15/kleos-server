@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'splash',
     'college',
-    'users'
+    'users',
 ]
 
 MIDDLEWARE_CLASSES = [
