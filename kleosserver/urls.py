@@ -35,9 +35,7 @@ urlpatterns = [
     url(r'^verify_otp/$', verify_otp),
     url(r'^resend_otp/$', resend_otp),
     url(r'^login/$', user_login),
-
-
-
+    url(r'^forgot_password/$', forgot_password),
 
 ]
 

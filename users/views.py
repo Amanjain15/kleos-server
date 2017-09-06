@@ -264,3 +264,80 @@ def update_user_details(request):
 			response_json[keys.KEY_MESSAGE] = str(e)
 	print response_json
 	return JsonResponse(response_json)
+
+
+@csrf_exempt
+def forgot_password(request):
+	response_json = {}
+	if request.method == 'GET':
+		try:
+			mobile =  request.GET.get(keys.KEY_MOBILE)
+			print mobile
+			try:
+				user_instance = UserData.objects.filter(mobile=mobile)
+				if user_instance.exists() :
+					try:
+						user_instance = UserData.objects.get(mobile=mobile)
+						if OtpData.objects.get(user=user_instance).verified:
+							print("User OTP is verified")
+							otp = random.randint(1000, 9999)
+							print "OTP " + str(otp)
+							message = 'Welcome to Kleos. Your One Time Password is ' + str(otp)
+							send_sms(mobile, message)
+							try:
+								otp_instance = OtpData.objects.get(user=user_instance)
+							except Exception as e:
+								print str(e)
+
+							setattr(otp_instance, 'otp', otp)
+							setattr(otp_instance, 'verified', True)
+							otp_instance.save()
+							response_json[keys.KEY_SUCCESS] = True
+							response_json[keys.KEY_MESSAGE] = "OTP Sent"	
+						else:
+							response_json[keys.KEY_SUCCESS] = False
+							response_json[keys.KEY_MESSAGE] = "OTP Data does not exist."		
+					except Exception as e:
+						response_json[keys.KEY_SUCCESS] = False
+						response_json[keys.KEY_MESSAGE] = str(e)	
+			except Exception as e:
+				response_json[keys.KEY_SUCCESS] = False
+				response_json[keys.KEY_MESSAGE] = str(e)
+		except Exception as e:
+			print str(e)
+			response_json[keys.KEY_SUCCESS] = False
+			response_json[keys.KEY_MESSAGE] = str(e)
+	elif request.method == 'POST':
+		try:
+			mobile = request.POST.get(keys.KEY_MOBILE)
+			password = request.POST.get(keys.KEY_PASSWORD)
+			otp_from_user = request.POST.get(keys.KEY_OTP)
+			encoded_password = jwt.encode({keys.KEY_PASSWORD: str(password)}, keys.KEY_PASSWORD_ENCRYPTION, algorithm='HS256')
+			try:
+				user_instance = UserData.objects.get(mobile=mobile)
+				otp = OtpData.objects.get(user=user_instance)
+				print str(otp.otp) + "Otp Saved"
+				print str(otp_from_user) + "Otp From User"
+				if otp.otp == int(otp_from_user):
+					user_instance.password = encoded_password
+					user_instance.save()
+					otp.verified=True
+					otp.save()
+					response_json[keys.KEY_SUCCESS] = True
+					response_json[keys.KEY_MESSAGE] = "Password Successfully Changed"
+				else:
+					response_json[keys.KEY_SUCCESS] = False
+					response_json[keys.KEY_MESSAGE] = "Wrong OTP"
+			except Exception as e:
+				print str(e)
+				response_json[keys.KEY_SUCCESS] = False
+				response_json[keys.KEY_MESSAGE] = "Password Reset Failed "+str(e)
+
+		except Exception as e:
+			print str(e)
+			response_json[keys.KEY_SUCCESS] = False
+			response_json[keys.KEY_MESSAGE] = "Invalid Credentials "+str(e)
+
+	print response_json
+	return JsonResponse(response_json)
+

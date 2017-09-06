@@ -4,7 +4,7 @@ from django.contrib import admin
 from users.models import *
 
 class UserDataAdmin(admin.ModelAdmin):
-    list_display = ["id", "name", "password","mobile","email","college","modified", "created","last_question_answered"
+    list_display = ["id", "name","mobile","email","college","modified", "created","last_question_answered"
     				,"last_question_timestamp"]
 
 admin.site.register(UserData, UserDataAdmin)
