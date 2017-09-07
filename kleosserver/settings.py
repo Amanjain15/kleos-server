@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'splash',
     'college',
     'users',
+    'home'
 ]
 
 MIDDLEWARE_CLASSES = [

@@ -20,7 +20,7 @@ from django.contrib import admin
 from splash.views import *
 from college.views import *
 from users.views import *
-
+from home.views import *
 
 
 from django.conf.urls.static import static
@@ -36,6 +36,7 @@ urlpatterns = [
     url(r'^resend_otp/$', resend_otp),
     url(r'^login/$', user_login),
     url(r'^forgot_password/$', forgot_password),
+    url(r'^tab_list/$', tab_list),  
 
 ]
 
