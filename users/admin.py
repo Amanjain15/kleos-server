@@ -18,3 +18,8 @@ class FcmDataAdmin(admin.ModelAdmin):
     list_display = ["id", "user", "fcm" ]
 
 admin.site.register(FcmData, FcmDataAdmin)
+
+class UserQuestionDataAdmin(admin.ModelAdmin):
+    list_display = ["id", "user", "question","answered","timestamp" ]
+
+admin.site.register(UserQuestionData, UserQuestionDataAdmin)

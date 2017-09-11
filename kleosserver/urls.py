@@ -21,6 +21,7 @@ from splash.views import *
 from college.views import *
 from users.views import *
 from home.views import *
+from questions.views import *
 
 
 from django.conf.urls.static import static
@@ -37,7 +38,8 @@ urlpatterns = [
     url(r'^login/$', user_login),
     url(r'^forgot_password/$', forgot_password),
     url(r'^tab_list/$', tab_list),  
-
+    url(r'^profile/$', profile),
+    url(r'^story/$', story),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

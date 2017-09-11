@@ -3,7 +3,7 @@ import keys
 # from key.models import KeysData
 
 
-def send_sms(mobile, msg, sender="GSTINV"):
+def send_sms(mobile, msg, sender=keys.KEY_SENDER_ID):
     try:
         # authkey = str(KeysData.objects.get(key="msg91").value)
         authkey = keys.KEY_MSG91

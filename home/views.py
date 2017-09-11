@@ -25,8 +25,7 @@ def tab_list(request):
 			try:
 				user_instance=UserData.objects.filter(mobile=mobile)
 				queryset = TabData.objects.order_by('position')
-				print queryset.count()
-				
+				print queryset.count()			
 				if user_instance.exists():
 					response_json[keys.KEY_TAB_LIST] = []
 					for o in queryset:

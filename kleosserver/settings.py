@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'splash',
     'college',
     'users',
-    'home'
+    'home',
+    'questions'
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -127,8 +128,9 @@ STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = "media/"
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
-# STATICFILES_DIRS = [
-#     os.path.join(BASE_DIR, "static/"),
-#     # '/var/www/static/',
-# ]
+
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static/"),
+    # '/var/www/static/',
+]

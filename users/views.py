@@ -341,3 +341,85 @@ def forgot_password(request):
 	print response_json
 	return JsonResponse(response_json)
 
+@csrf_exempt
+def profile(request):
+	response_json={}
+	if request.method == 'GET':
+		try:
+			access_token = request.GET.get(keys.KEY_ACCESS_TOKEN)
+			print access_token
+			json1 = jwt.decode(str(access_token), keys.KEY_ACCESS_TOKEN_ENCRYPTION, algorithms=['HS256'])
+			mobile = str(json1[keys.KEY_ACCESS_TOKEN])
+			try:
+				user_instance=UserData.objects.filter(mobile=mobile)
+				if user_instance.exists():
+					try:
+						response_college = college_data()
+						if(response_college[keys.KEY_SUCCESS]) :
+							response_json[keys.KEY_COLLEGE_LIST]=response_college[keys.KEY_COLLEGE_LIST]
+							print str(response_college[keys.KEY_COLLEGE_LIST])
+						else :
+							print "Error in Getting College List " + response_college[keys.KEY_MESSAGE]
+					except Exception as e:
+						print str(e)
+						print "Error in Getting College List " + str(e) + " " + str(response_college[keys.KEY_MESSAGE])
+					user_instance=UserData.objects.get(mobile=mobile)
+					response_json[keys.KEY_NAME]=user_instance.name
+					response_json[keys.KEY_MOBILE]=user_instance.mobile
+					response_json[keys.KEY_EMAIL]=user_instance.email
+					response_json[keys.KEY_COLLEGE_NAME]=user_instance.college
+					response_json[keys.KEY_SUCCESS] = True
+					response_json[keys.KEY_MESSAGE] = "Success"
+					# response_json[keys.KEY_NAME]=user_instance.name //RANK
+				else:
+					response_json[keys.KEY_SUCCESS] = False
+					response_json[keys.KEY_MESSAGE] = "Invalid User"
+			except Exception as e:
+				response_json[keys.KEY_SUCCESS] = False
+				response_json[keys.KEY_MESSAGE] = str(e)
+		except Exception as e:
+			response_json[keys.KEY_SUCCESS] = False
+			response_json[keys.KEY_MESSAGE] = str(e)
+	
+	elif request.method == 'POST':
+		try:
+			access_token = request.POST.get(keys.KEY_ACCESS_TOKEN)
+			print access_token
+			json1 = jwt.decode(str(access_token), keys.KEY_ACCESS_TOKEN_ENCRYPTION, algorithms=['HS256'])
+			mobile = str(json1[keys.KEY_ACCESS_TOKEN])
+			name =  request.POST.get(keys.KEY_NAME)
+			print name
+			college =  request.POST.get(keys.KEY_COLLEGE_NAME)
+			print college
+			email =  request.POST.get(keys.KEY_EMAIL)
+			print email
+			try:
+				user_instance = UserData.objects.filter(mobile=mobile)
+				if user_instance.exists() :
+					try:
+						user_instance = UserData.objects.get(mobile=mobile)
+						if OtpData.objects.get(user=user_instance).verified:
+							setattr(user_instance, 'name', name)
+							setattr(user_instance, 'college', college)
+							setattr(user_instance, 'email', email)
+							
+							user_instance.save()
+							response_json[keys.KEY_SUCCESS] = True
+							response_json[keys.KEY_MESSAGE] = "User Details Updated"	
+						else:
+							response_json[keys.KEY_SUCCESS] = False
+							response_json[keys.KEY_MESSAGE] = "Invalid User"		
+					except Exception as e:
+						response_json[keys.KEY_SUCCESS] = False
+						response_json[keys.KEY_MESSAGE] = str(e)	
+			except Exception as e:
+				response_json[keys.KEY_SUCCESS] = False
+				response_json[keys.KEY_MESSAGE] = str(e)
+		except Exception as e:
+			response_json[keys.KEY_SUCCESS] = False
+			response_json[keys.KEY_MESSAGE] = str(e)
+	print response_json
+	return JsonResponse(response_json)
+
+	
+
