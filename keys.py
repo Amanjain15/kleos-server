@@ -36,7 +36,7 @@ KEY_QUESTION_NO='question_no'
 KEY_QUESTION_CONTENT='question_content'
 KEY_QUESTION_IMAGE='question_img'
 KEY_QUESTION_ANSWER='question_answer'
-
+KEY_SOLVED_QUESTION_LIST='solved_question_list'
 
 
 KEY_ACCESS_TOKEN_ENCRYPTION="810957"

@@ -88,7 +88,7 @@ def question_data(question_no):
 		temp_json[keys.KEY_QUESTION_CONTENT]=question.content
 		try:
 			question_img_data = QuestionImageData.objects.get(question=question)
-			temp_json[keys.KEY_QUESTION_IMAGE]=question_img_data.image_url
+			temp_json[keys.KEY_QUESTION_IMAGE]=request.scheme + '://' + request.get_host() +"/media/"+ str(question_img_data.image_url) 
 			response[keys.KEY_QUESTION]=temp_json
 			response[keys.KEY_SUCCESS]=True
 			response[keys.KEY_MESSAGE]="Success Finding QuestionData"
@@ -100,7 +100,6 @@ def question_data(question_no):
 		response[keys.KEY_MESSAGE]="Error Finding Question "+str(e)
 	print response
 	return response
-
 
 @csrf_exempt
 def question_list(request):
@@ -128,14 +127,14 @@ def question_list(request):
 							question_set.order_by('question_no')[:next_question_no-1]
 							
 							print question_set
-							
-							for x in question_set:
-								temp_question_data=question_data(x.question_no)
-								if temp_question_data[keys.KEY_SUCCESS]:
-									solved_question_list.append(temp_question_data)
+							if question_set.count() > 0:
+								for x in question_set:
+									temp_question_data=question_data(x.question_no)
+									if temp_question_data[keys.KEY_SUCCESS]:
+										solved_question_list.append(temp_question_data)
 							
 							print solved_question_list
-							
+							response_json[keys.KEY_SOLVED_QUESTION_LIST]=solved_question_list
 							
 						else:
 							response_json[keys.KEY_SUCCESS]=False
@@ -172,8 +171,7 @@ def story(request):
 					story=StoryData.objects.all()
 					for o in story[:1]:
 						response[keys.KEY_STORY]=o.content
-						response[keys.KEY_STORY_IMAGE]=""
-
+						response[keys.KEY_STORY_IMAGE]=request.scheme + '://' + request.get_host() +"/media/"+ str(o.image)
 					response[keys.KEY_SUCCESS]=True
 					response[keys.KEY_MESSAGE]="Success"
 				else :

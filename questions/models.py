@@ -16,7 +16,7 @@ class QuestionData(models.Model):
 
 class QuestionImageData(models.Model):
 	question=models.ForeignKey(QuestionData)
-	image_url=models.CharField(max_length=1000, blank=True, null=True)
+	image_url=models.ImageField(upload_to='media/questions/',blank=True,null=True)
 
 
 class QuestionHints(models.Model):
@@ -25,4 +25,4 @@ class QuestionHints(models.Model):
 
 class StoryData(models.Model):
 	content=models.CharField(max_length=3000, blank=True, null=True)
-	image = models.ImageField(upload_to='/media/',blank=True)
+	image = models.ImageField(upload_to='media/story/',blank=True)
