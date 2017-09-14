@@ -30,32 +30,39 @@ def unsolved_question(access_token):
 				user_instance = UserData.objects.get(mobile=mobile)
 				try:
 					question_set=QuestionData.objects.all()
+					print question_set
 					try:
+						print "last_question_answered"					
 						last_question_answered=user_instance.last_question_answered
-						if last_question_answered.exists:
-							user_question_data = UserQuestionData.objects.get(question=last_question_answered)
+						print last_question_answered
+						if last_question_answered > 0:
+							question_data = QuestionData.objects.get(question_no=last_question_answered) 					
+							user_question_data = UserQuestionData.objects.get(question=question_data)
 							if user_question_data.answered:
-								if last_question_answered.question_no == 0:
-									response[keys.KEY_NEXT_QUESTION] = QuestionData.objects.get(question_no=1)
-								elif last_question_answered.question_no == question_set.count() :
+								if last_question_answered == 0:
+									response[keys.KEY_NEXT_QUESTION] = QuestionData.objects.get(question_no=1).question_no
+								elif last_question_answered == question_set.count() :
 									response[keys.KEY_SUCCESS]=False
 									response[keys.KEY_MESSAGE]="All Questions Solved"
 									print response
 									return response
 								else :
-									response[keys.KEY_NEXT_QUESTION] = QuestionData.objects.get(question_no=last_question_answered.question_no+1)
+									response[keys.KEY_NEXT_QUESTION] = QuestionData.objects.get(question_no=last_question_answered+1).question_no
 								
 								response[keys.KEY_SUCCESS]=True
-								response[keys.KEY_MESSAGE]="Question No "+response[keys.KEY_NEXT_QUESTION]
-							else:
+								response[keys.KEY_MESSAGE]="Question No "+str(response[keys.KEY_NEXT_QUESTION]) 
+							else :
 								response[keys.KEY_SUCCESS]=False
-								response[keys.KEY_MESSAGE]="Last Question Unanswered "+ last_question_answered.question_no	 
+								response[keys.KEY_MESSAGE]="Zero Questions Answered"
 						else :
-							response[keys.KEY_SUCCESS]=False
-							response[keys.KEY_MESSAGE]="Zero Questions Answered"								
+							print "last_question_answered "+str(last_question_answered)
+							response[keys.KEY_NEXT_QUESTION] = QuestionData.objects.get(question_no=1).question_no
+							response[keys.KEY_SUCCESS]=True
+							response[keys.KEY_MESSAGE]="Lets Start"  					
 					except Exception as e:
+						print "except" + str(e)
 						if "object has no attribute 'last_question_answered'" in str(e):
-							response[keys.KEY_NEXT_QUESTION] = QuestionData.objects.get(question_no=1)
+							response[keys.KEY_NEXT_QUESTION] = QuestionData.objects.get(question_no=1).question_no
 							response[keys.KEY_SUCCESS]=True
 							response[keys.KEY_MESSAGE]="Lets Start"  
 						else:
@@ -77,8 +84,8 @@ def unsolved_question(access_token):
 	return response
 
 @csrf_exempt
-def question_data(question_no):
-	print question_no + "question_data_method"
+def question_data(request,question_no):
+	print str(question_no) + " question_data_method"
 	response={}
 	try:
 		temp_json={}
@@ -115,26 +122,31 @@ def question_list(request):
 				if user_instance.exists():
 					user_instance=UserData.objects.get(mobile=mobile)
 					response_unsolved_question=unsolved_question(access_token)
+					print "Return to Question_list_method"
 					if response_unsolved_question[keys.KEY_SUCCESS]:
 						next_question_no=response_unsolved_question[keys.KEY_NEXT_QUESTION]
-						print next_question_no
-						response_question_data=question_data(next_question_no)
+						print str(next_question_no)
+						response_question_data=question_data(request,next_question_no)
 						if response_question_data[keys.KEY_SUCCESS]:
 							response_json[keys.KEY_NEXT_QUESTION]=response_question_data[keys.KEY_QUESTION]
 							solved_question_list=[]
 							question_set=QuestionData.objects.all()
-							
-							question_set.order_by('question_no')[:next_question_no-1]
-							
+							question_set.order_by('question_no')
+							question_set=question_set[:next_question_no-1]
+							print "question_set"
 							print question_set
 							if question_set.count() > 0:
 								for x in question_set:
-									temp_question_data=question_data(x.question_no)
-									if temp_question_data[keys.KEY_SUCCESS]:
+									response_question_data=question_data(request,x.question_no)
+									temp_question_data=response_question_data[keys.KEY_QUESTION]
+									if response_question_data[keys.KEY_SUCCESS]:
 										solved_question_list.append(temp_question_data)
 							
+							print "solved_question_list"	
 							print solved_question_list
 							response_json[keys.KEY_SOLVED_QUESTION_LIST]=solved_question_list
+							response_json[keys.KEY_SUCCESS]=True
+							response_json[keys.KEY_MESSAGE]="Success"
 							
 						else:
 							response_json[keys.KEY_SUCCESS]=False
@@ -146,12 +158,61 @@ def question_list(request):
 					response_json[keys.KEY_SUCCESS]=False
 					response_json[keys.KEY_MESSAGE]="Invalid User"
 			except Exception as e:
-				response[keys.KEY_SUCCESS]=False
-				response[keys.KEY_MESSAGE]="Error finding UserInstance "+str(e)
+				print str(e)
+				response_json[keys.KEY_SUCCESS]=False
+				response_json[keys.KEY_MESSAGE]="Error finding UserInstance "+str(e)
 		except Exception as e:
-			response[keys.KEY_SUCCESS]=False
-			response[keys.KEY_MESSAGE]="Decoding Error "+str(e)
+			print str(e)
+			response_json[keys.KEY_SUCCESS]=False
+			response_json[keys.KEY_MESSAGE]="Decoding Error "+str(e)
 
+	elif request.method == 'POST':
+		try:
+			access_token = request.POST.get(keys.KEY_ACCESS_TOKEN)
+			print access_token
+			json= jwt.decode(str(access_token),keys.KEY_ACCESS_TOKEN_ENCRYPTION,algorithms=['HS256'])
+			mobile=str(json[keys.KEY_ACCESS_TOKEN])
+			try:
+				user_instance=UserData.objects.filter(mobile=mobile)
+				if user_instance.exists():
+					user_instance=UserData.objects.get(mobile=mobile)
+					answer = request.POST.get(keys.KEY_QUESTION_ANSWER)
+					question_no = request.POST.get(keys.KEY_QUESTION_NO)
+					try:
+						question_datas=QuestionData.objects.get(question_no=question_no)
+						stored_answer=question_datas.answer.replace(" ","")
+						answer=answer.replace(" ","")
+						if answer == stored_answer:
+							try:
+								user_question_data=UserQuestionData.objects.create(
+																					user=user_instance,
+																					question=question_datas,
+																					answered=True,
+																					)	
+								setattr(user_instance,'last_question_answered', question_no)
+								setattr(user_instance,'last_question_timestamp',user_question_data.timestamp)
+								user_instance.save();
+								print "Answer correct "+str(user_instance.last_question_answered)
+								response_json[keys.KEY_SUCCESS]=True
+								response_json[keys.KEY_MESSAGE]="Right Answer"
+							except Exception as e:
+								print str(e)
+								response_json[keys.KEY_SUCCESS]=False
+								response_json[keys.KEY_MESSAGE]="Error "+str(e)
+								
+						else :
+							response_json[keys.KEY_SUCCESS]=False
+							response_json[keys.KEY_MESSAGE]="Wrong Answer"
+					except Exception as e:
+						response_json[keys.KEY_SUCCESS]=False
+						response_json[keys.KEY_MESSAGE]="Error "+str(e)
+			except Exception as e:
+				response_json[keys.KEY_SUCCESS]=False
+				response_json[keys.KEY_MESSAGE]="Error "+str(e)
+
+		except Exception as e:
+				response_json[keys.KEY_SUCCESS]=False
+				response_json[keys.KEY_MESSAGE]="Error "+str(e)
 	print response_json
 	return JsonResponse(response_json)
 

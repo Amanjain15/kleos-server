@@ -40,6 +40,8 @@ urlpatterns = [
     url(r'^tab_list/$', tab_list),  
     url(r'^profile/$', profile),
     url(r'^story/$', story),
+    url(r'^question_list/$', question_list),
+       
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

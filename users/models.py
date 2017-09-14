@@ -14,7 +14,7 @@ class UserData(models.Model):
 	college = models.CharField(max_length=255, blank=False, null=True, default="")
 	modified = models.DateTimeField(auto_now=True, auto_now_add=False)
 	created = models.DateTimeField(auto_now=False, auto_now_add=True)
-	last_question_answered = models.ForeignKey(QuestionData, null = True, blank=True)
+	last_question_answered = models.IntegerField(default=0)
 	last_question_timestamp = models.DateTimeField(null=True,blank=True)
 
 	def __unicode__(self):
