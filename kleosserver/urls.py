@@ -22,7 +22,8 @@ from college.views import *
 from users.views import *
 from home.views import *
 from questions.views import *
-
+from sponser.views import *
+from about_us.views import *
 
 from django.conf.urls.static import static
 from django.conf import settings
@@ -43,7 +44,8 @@ urlpatterns = [
     url(r'^question_list/$', question_list),
     url(r'^bonus/$', bonus),
     url(r'^hints/$', hints),
-       
+    url(r'^sponsor_list/$', sponsor_list),
+    url(r'^about_us/$', about_us),       
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

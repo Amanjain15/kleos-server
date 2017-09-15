@@ -37,7 +37,7 @@ def unsolved_question(access_token):
 						print last_question_answered
 						if last_question_answered > 0:
 							question_data = QuestionData.objects.get(question_no=last_question_answered) 					
-							user_question_data = UserQuestionData.objects.get(question=question_data)
+							user_question_data = UserQuestionData.objects.get(question=question_data,user=user_instance)
 							if user_question_data.answered:
 								if last_question_answered == 0:
 									response[keys.KEY_NEXT_QUESTION] = QuestionData.objects.get(question_no=1).question_no
@@ -152,8 +152,27 @@ def question_list(request):
 							response_json[keys.KEY_SUCCESS]=False
 							response_json[keys.KEY_MESSAGE]="Error "+str(response_question_data[keys.KEY_MESSAGE])  
 					else:
-						response_json[keys.KEY_SUCCESS]=False
-						response_json[keys.KEY_MESSAGE]="Error "+str(response_unsolved_question[keys.KEY_MESSAGE])  
+						if response_unsolved_question[keys.KEY_MESSAGE] == "All Questions Solved":
+							solved_question_list=[]
+							question_set=QuestionData.objects.all()
+							question_set.order_by('question_no')
+							print "question_set"
+							print question_set
+							if question_set.count() > 0:
+								for x in question_set:
+									response_question_data=question_data(request,x.question_no)
+									temp_question_data=response_question_data[keys.KEY_QUESTION]
+									if response_question_data[keys.KEY_SUCCESS]:
+										solved_question_list.append(temp_question_data)
+							
+							print "solved_question_list"	
+							print solved_question_list
+							response_json[keys.KEY_SOLVED_QUESTION_LIST]=solved_question_list
+							response_json[keys.KEY_SUCCESS]=True
+							response_json[keys.KEY_MESSAGE]="All Questions Solved"
+						else :
+							response_json[keys.KEY_SUCCESS]=False
+							response_json[keys.KEY_MESSAGE]="Error "+str(response_unsolved_question[keys.KEY_MESSAGE])  
 				else:	
 					response_json[keys.KEY_SUCCESS]=False
 					response_json[keys.KEY_MESSAGE]="Invalid User"
@@ -298,18 +317,20 @@ def bonus(request):
 
 	elif request.method == 'POST':
 		try:
-			access_token = request.GET.get(keys.KEY_ACCESS_TOKEN)
+			access_token = request.POST.get(keys.KEY_ACCESS_TOKEN)
 			print access_token
 			json= jwt.decode(str(access_token),keys.KEY_ACCESS_TOKEN_ENCRYPTION,algorithms=['HS256'])
 			mobile=str(json[keys.KEY_ACCESS_TOKEN])
 			print mobile
 			try:
 				user_instance= UserData.objects.filter(mobile=mobile)
-				answer=request.GET.get(keys.KEY_QUESTION_ANSWER)
+				answer=request.POST.get(keys.KEY_QUESTION_ANSWER)
 				if user_instance.exists():
 					user_instance=UserData.objects.get(mobile=mobile)
 					question = BonusQuestionData.objects.get(question_no=1)
-					if answer==question.answer:
+					stored_answer=question.answer.replace(" ","")
+					answer=answer.replace(" ","")
+					if answer==stored_answer:
 						user_bonus_question_data=UserBonusQuestionData.objects.get(question=question,user=user_instance)
 						setattr(user_bonus_question_data,'answered',True)
 						user_bonus_question_data.save();
@@ -323,7 +344,7 @@ def bonus(request):
 					response[keys.KEY_MESSAGE]="Invalid User"					
 			except Exception as e:
 				response[keys.KEY_SUCCESS]=False
-				response[keys.KEY_MESSAGE]="Error Finding User"
+				response[keys.KEY_MESSAGE]="Error Finding User "+ str(e) 
 
 		except Exception as e:
 			response[keys.KEY_SUCCESS]=False

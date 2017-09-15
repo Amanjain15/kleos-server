@@ -370,7 +370,7 @@ def profile(request):
 					response_json[keys.KEY_COLLEGE_NAME]=user_instance.college
 					response_json[keys.KEY_SUCCESS] = True
 					response_json[keys.KEY_MESSAGE] = "Success"
-					# response_json[keys.KEY_NAME]=user_instance.name //RANK
+					response_json[keys.KEY_RANK]=rank(mobile) 
 				else:
 					response_json[keys.KEY_SUCCESS] = False
 					response_json[keys.KEY_MESSAGE] = "Invalid User"
@@ -423,3 +423,21 @@ def profile(request):
 
 	
 
+def rank(mobile):
+	try:
+		user_instance= UserData.objects.get(mobile=mobile)
+		user_set = UserData.objects.all().order_by('-last_question_answered','last_question_timestamp')
+		print "------------------User Set---------------------"
+		print user_set
+		i=0
+		if user_instance.last_question_answered != 0:
+			for o in user_set:
+				i=i+1
+				if o.mobile == mobile:
+					return i
+				print str(o.mobile) +" "+ str(o.last_question_answered) +" "+ str(o.last_question_timestamp)
+		else :
+			return -1
+	except Exception as e:
+		raise
+	return i

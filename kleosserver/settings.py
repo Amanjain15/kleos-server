@@ -41,7 +41,9 @@ INSTALLED_APPS = [
     'college',
     'users',
     'home',
-    'questions'
+    'questions',
+    'about_us',
+    'sponser'
 ]
 
 MIDDLEWARE_CLASSES = [
