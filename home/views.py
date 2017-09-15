@@ -8,6 +8,8 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from datetime import date, timedelta
 
+from users.models import *
+
 import keys
 import jwt
 import random
@@ -22,11 +24,27 @@ def tab_list(request):
 			print access_token
 			json1 = jwt.decode(str(access_token), keys.KEY_ACCESS_TOKEN_ENCRYPTION, algorithms=['HS256'])
 			mobile = str(json1['access_token'])
+			fcm = str(request.GET.get(keys.KEY_FCM))
+			print "FCM"
+			print fcm
 			try:
 				user_instance=UserData.objects.filter(mobile=mobile)
 				queryset = TabData.objects.order_by('position')
 				print queryset.count()			
 				if user_instance.exists():
+					user_instance=UserData.objects.get(mobile=mobile)
+					try:
+						fcm_data=FcmData.objects.get(user=user_instance)
+						print "FCM DATA FOUND"
+						setattr(fcm_data,'fcm',fcm)
+						fcm_data.save()
+						print "FCM DATA UPDATED"
+					except Exception as e:
+						FcmData.objects.create(
+												user=user_instance,
+												fcm=fcm,
+							)
+						print "FCM DATA CREATED"
 					response_json[keys.KEY_TAB_LIST] = []
 					for o in queryset:
 						temp_json ={ keys.KEY_TAB_TITLE : str(o.title),keys.KEY_TAB_POSITION : int(o.position),

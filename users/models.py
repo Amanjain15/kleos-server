@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 import datetime
 from django.db import models
 from college.models import *
-from questions.models import QuestionData
+from questions.models import QuestionData,BonusQuestionData
 # Create your models here.
 	
 class UserData(models.Model):
@@ -34,6 +34,13 @@ class UserQuestionData(models.Model):
 	question = models.ForeignKey(QuestionData)
 	answered = models.BooleanField(default=False)
 	timestamp = models.DateTimeField(auto_now=True, auto_now_add=False)
+
+class UserBonusQuestionData(models.Model):
+	user = models.ForeignKey(UserData)
+	question = models.ForeignKey(BonusQuestionData)
+	answered = models.BooleanField(default=False)
+	timestamp = models.DateTimeField(auto_now=True, auto_now_add=False)
+
 
 # class UserScoreData(models.Model):
 # 	user=models.ForeignKey(UserData)

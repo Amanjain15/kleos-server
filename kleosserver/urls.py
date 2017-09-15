@@ -41,6 +41,8 @@ urlpatterns = [
     url(r'^profile/$', profile),
     url(r'^story/$', story),
     url(r'^question_list/$', question_list),
+    url(r'^bonus/$', bonus),
+    url(r'^hints/$', hints),
        
 ]
 

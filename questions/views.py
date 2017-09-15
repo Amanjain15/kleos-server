@@ -2,7 +2,7 @@ from django.shortcuts import render
 
 from .models import *
 
-from users.models import UserData
+from users.models import *
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from datetime import date, timedelta
@@ -241,6 +241,130 @@ def story(request):
 			except Exception as e:
 				response[keys.KEY_SUCCESS]=False
 				response[keys.KEY_MESSAGE]="Error "+str(e)
+		except Exception as e:
+			response[keys.KEY_SUCCESS]=False
+			response[keys.KEY_MESSAGE]="Decoding Error "+str(e)
+	print response
+	return JsonResponse(response)
+
+@csrf_exempt
+def bonus(request):
+	response={}
+	if request.method == 'GET':
+		try:
+			access_token = request.GET.get(keys.KEY_ACCESS_TOKEN)
+			print access_token
+			json= jwt.decode(str(access_token),keys.KEY_ACCESS_TOKEN_ENCRYPTION,algorithms=['HS256'])
+			mobile=str(json[keys.KEY_ACCESS_TOKEN])
+			print mobile
+			try:
+				user_instance= UserData.objects.filter(mobile=mobile)
+				if user_instance.exists():
+					user_instance=UserData.objects.get(mobile=mobile)
+					question = BonusQuestionData.objects.get(question_no=1)
+					try:
+						user_bonus_question_data=UserBonusQuestionData.objects.get(question=question,user=user_instance)
+					except Exception as e:
+						print str(e)
+						user_bonus_question_data=UserBonusQuestionData.objects.create(
+																					user=user_instance,
+																					question=question,
+																					answered=False
+													)
+					print str(user_bonus_question_data.answered)
+
+					if user_bonus_question_data.answered:
+						response[keys.KEY_ANSWERED]=True
+					else:
+						response[keys.KEY_ANSWERED]=False		
+					temp_json={}
+					temp_json[keys.KEY_QUESTION_NAME]=question.name
+					temp_json[keys.KEY_QUESTION_NO]=question.question_no
+					temp_json[keys.KEY_QUESTION_CONTENT]=question.content
+					temp_json[keys.KEY_QUESTION_IMAGE]=request.scheme + '://' + request.get_host() +"/media/"+ str(question.image_url) 
+					
+					response[keys.KEY_QUESTION]=temp_json
+					response[keys.KEY_SUCCESS]=True
+					response[keys.KEY_MESSAGE]="Success"
+				else:
+					response[keys.KEY_SUCCESS]=False
+					response[keys.KEY_MESSAGE]="Invalid User"					
+			except Exception as e:
+				response[keys.KEY_SUCCESS]=False
+				response[keys.KEY_MESSAGE]="Error Finding User"
+		except Exception as e:
+			response[keys.KEY_SUCCESS]=False
+			response[keys.KEY_MESSAGE]="Decoding Error "+str(e)
+
+	elif request.method == 'POST':
+		try:
+			access_token = request.GET.get(keys.KEY_ACCESS_TOKEN)
+			print access_token
+			json= jwt.decode(str(access_token),keys.KEY_ACCESS_TOKEN_ENCRYPTION,algorithms=['HS256'])
+			mobile=str(json[keys.KEY_ACCESS_TOKEN])
+			print mobile
+			try:
+				user_instance= UserData.objects.filter(mobile=mobile)
+				answer=request.GET.get(keys.KEY_QUESTION_ANSWER)
+				if user_instance.exists():
+					user_instance=UserData.objects.get(mobile=mobile)
+					question = BonusQuestionData.objects.get(question_no=1)
+					if answer==question.answer:
+						user_bonus_question_data=UserBonusQuestionData.objects.get(question=question,user=user_instance)
+						setattr(user_bonus_question_data,'answered',True)
+						user_bonus_question_data.save();
+						response[keys.KEY_SUCCESS]=True
+						response[keys.KEY_MESSAGE]="Correct Answer"	
+					else :
+						response[keys.KEY_SUCCESS]=False
+						response[keys.KEY_MESSAGE]="Wrong Answer"
+				else:
+					response[keys.KEY_SUCCESS]=False
+					response[keys.KEY_MESSAGE]="Invalid User"					
+			except Exception as e:
+				response[keys.KEY_SUCCESS]=False
+				response[keys.KEY_MESSAGE]="Error Finding User"
+
+		except Exception as e:
+			response[keys.KEY_SUCCESS]=False
+			response[keys.KEY_MESSAGE]="Decoding Error "+str(e)
+
+	print response
+	return JsonResponse(response)
+
+@csrf_exempt
+def hints(request):
+	response={}
+	if request.method == 'GET':
+		try:
+			access_token = request.GET.get(keys.KEY_ACCESS_TOKEN)
+			print access_token
+			json= jwt.decode(str(access_token),keys.KEY_ACCESS_TOKEN_ENCRYPTION,algorithms=['HS256'])
+			mobile=str(json[keys.KEY_ACCESS_TOKEN])
+			print mobile
+			try:
+				user_instance= UserData.objects.filter(mobile=mobile)
+				answer=request.GET.get(keys.KEY_QUESTION_ANSWER)
+
+				if user_instance.exists():
+					hints_list=[]
+					for o in QuestionHints.objects.all():
+						temp_json={}
+						temp_json[keys.KEY_QUESTION_NAME]=o.question.name
+						temp_json[keys.KEY_QUESTION_NO]=o.question.question_no
+						temp_json[keys.KEY_QUESTION_HINTS]=o.hint
+						question_img_data = QuestionImageData.objects.get(question=o.question)
+						temp_json[keys.KEY_QUESTION_IMAGE]=request.scheme + '://' + request.get_host() +"/media/"+ str(question_img_data.image_url) 
+						hints_list.append(temp_json)
+					response[keys.KEY_HINT_LIST]=hints_list
+					response[keys.KEY_SUCCESS]=True
+					response[keys.KEY_MESSAGE]="Success"
+				else:
+					response[keys.KEY_SUCCESS]=False
+					response[keys.KEY_MESSAGE]="Invalid User"	
+			except Exception as e:
+				response[keys.KEY_SUCCESS]=False
+				response[keys.KEY_MESSAGE]="Error Finding User"
 		except Exception as e:
 			response[keys.KEY_SUCCESS]=False
 			response[keys.KEY_MESSAGE]="Decoding Error "+str(e)
