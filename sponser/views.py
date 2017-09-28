@@ -14,42 +14,30 @@ import keys
 import jwt
 import random
 
-
 @csrf_exempt
-def tab_list(request):
+def sponsor_list(request):
 	response_json={}
-	if request.method == 'GET' :
+	if request.method=='GET':
 		try:
 			access_token = request.GET.get(keys.KEY_ACCESS_TOKEN)
 			print access_token
 			json1 = jwt.decode(str(access_token), keys.KEY_ACCESS_TOKEN_ENCRYPTION, algorithms=['HS256'])
 			mobile = str(json1['access_token'])
-			fcm = str(request.GET.get(keys.KEY_FCM))
-			print "FCM"
-			print fcm
 			try:
-				user_instance=UserData.objects.filter(mobile=mobile)
-				queryset = TabData.objects.order_by('position')
-				print queryset.count()			
+				user_instance=UserData.objects.filter(mobile=mobile)		
 				if user_instance.exists():
-					user_instance=UserData.objects.get(mobile=mobile)
-					try:
-						fcm_data=FcmData.objects.get(user=user_instance)
-						print "FCM DATA FOUND"
-						setattr(fcm_data,'fcm',fcm)
-						fcm_data.save()
-						print "FCM DATA UPDATED"
-					except Exception as e:
-						FcmData.objects.create(
-												user=user_instance,
-												fcm=fcm,
-							)
-						print "FCM DATA CREATED"
-					response_json[keys.KEY_TAB_LIST] = []
-					for o in queryset:
-						temp_json ={ keys.KEY_TAB_TITLE : str(o.title),keys.KEY_TAB_POSITION : int(o.position),
-									keys.KEY_TAB_ID : int(o.tab_id)}
-						response_json[keys.KEY_TAB_LIST].append(temp_json)
+					sponsor_data=SponsorData.objects.all()
+					sponsors=[]
+					for o in sponsor_data:
+						temp_json={}
+						temp_json[keys.KEY_SPONSOR_NAME]=o.name
+						temp_json[keys.KEY_SPONSOR_CONTENT]=o.content
+						temp_json[keys.KEY_SPONSOR_IMAGE]=request.scheme + '://' + request.get_host() +"/media/"+ str(o.image_url) 
+						temp_json[keys.KEY_SPONSOR_URL]=o.url
+						sponsors.append(temp_json)
+
+
+					response_json[keys.KEY_SPONSOR_LIST] = sponsors
 					response_json[keys.KEY_SUCCESS] = True
 					response_json[keys.KEY_MESSAGE] = "Successful"
 				else :
@@ -58,7 +46,6 @@ def tab_list(request):
 			except Exception as e:
 				response_json[keys.KEY_SUCCESS] = False
 				response_json[keys.KEY_MESSAGE] = str(e)
-				raise
 		except Exception as e:
 			response_json[keys.KEY_SUCCESS] = False
 			response_json[keys.KEY_MESSAGE] = str(e)

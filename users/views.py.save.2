@@ -482,9 +482,6 @@ def leader_board(request):
 def notify(request):
 	response={}
 	if request.method == 'GET':
-		key =  request.GET.get(keys.KEY_ACCESS_TOKEN)
-		if key != "Aman@1596":
-			return JsonResponse(response)
 		try:
 			user_set=UserData.objects.all()
 			for o in user_set:
@@ -522,14 +519,11 @@ def notify(request):
 def notify0(request):
 	response={}
 	if request.method == 'GET':
-		key =  request.GET.get(keys.KEY_ACCESS_TOKEN)
-		print key
-		if key != "Aman@1596":
-			return JsonResponse(response)
 		try:
-			user_set=UserData.objects.filter(last_question_answered=0)
+			user_set=UserData.objects.all()
 			for o in user_set:
 				try:
+					print str(o.last_question_answered)
 					fcm=str(FcmData.objects.get(user=o).fcm)
 					if o.last_question_answered == 0:
 						body="Answer : VALAR MORGHULIS"
@@ -540,10 +534,9 @@ def notify0(request):
 				except Exception as e:
 					response[keys.KEY_SUCCESS]="Failure"
 					response[keys.KEY_MESSAGE]="Error "+ str(e)
-			response["size"]= user_set.count()
 		except Exception as e:
 			response[keys.KEY_SUCCESS]="Failure"
-			response[keys.KEY_MESSAGE]="Error " + str(e)
+			response[keys.KEY_MESSAGE]="Error " + str(e)+"
 	print response
 	return JsonResponse(response)
 
@@ -551,11 +544,8 @@ def notify0(request):
 def notify1(request):
 	response={}
 	if request.method == 'GET':
-		key =  request.GET.get(keys.KEY_ACCESS_TOKEN)
-		if key != "Aman@1596":
-			return JsonResponse(response)
 		try:
-			user_set=UserData.objects.filter(last_question_answered=1)
+			user_set=UserData.objects.all()
 			for o in user_set:
 				try:
 					fcm=str(FcmData.objects.get(user=o).fcm)
@@ -568,7 +558,6 @@ def notify1(request):
 				except Exception as e:
 					response[keys.KEY_SUCCESS]="Failure"
 					response[keys.KEY_MESSAGE]="Error "+ str(e)
-			response["size"]= user_set.count()
 		except Exception as e:
 			response[keys.KEY_SUCCESS]="Failure"
 			response[keys.KEY_MESSAGE]="Error " + str(e)
@@ -579,11 +568,8 @@ def notify1(request):
 def notify2(request):
 	response={}
 	if request.method == 'GET':
-		key =  request.GET.get(keys.KEY_ACCESS_TOKEN)
-		if key != "Aman@1596":
-			return JsonResponse(response)
 		try:
-			user_set=UserData.objects.filter(last_question_answered=2)
+			user_set=UserData.objects.all()
 			for o in user_set:
 				try:
 					fcm=str(FcmData.objects.get(user=o).fcm)
@@ -596,7 +582,6 @@ def notify2(request):
 				except Exception as e:
 					response[keys.KEY_SUCCESS]="Failure"
 					response[keys.KEY_MESSAGE]="Error "+ str(e)
-			response["size"]= user_set.count()
 		except Exception as e:
 			response[keys.KEY_SUCCESS]="Failure"
 			response[keys.KEY_MESSAGE]="Error " + str(e)
@@ -607,11 +592,8 @@ def notify2(request):
 def notify3(request):
 	response={}
 	if request.method == 'GET':
-		key =  request.GET.get(keys.KEY_ACCESS_TOKEN)
-		if key != "Aman@1596":
-			return JsonResponse(response)
 		try:
-			user_set=UserData.objects.filter(last_question_answered=3)
+			user_set=UserData.objects.all()
 			for o in user_set:
 				try:
 					fcm=str(FcmData.objects.get(user=o).fcm)
@@ -624,7 +606,6 @@ def notify3(request):
 				except Exception as e:
 					response[keys.KEY_SUCCESS]="Failure"
 					response[keys.KEY_MESSAGE]="Error "+ str(e)
-			response["size"]= user_set.count()
 		except Exception as e:
 			response[keys.KEY_SUCCESS]="Failure"
 			response[keys.KEY_MESSAGE]="Error " + str(e)
@@ -635,11 +616,8 @@ def notify3(request):
 def notify4(request):
 	response={}
 	if request.method == 'GET':
-		key =  request.GET.get(keys.KEY_ACCESS_TOKEN)
-		if key != "Aman@1596":
-			return JsonResponse(response)
 		try:
-			user_set=UserData.objects.filter(last_question_answered=4)
+			user_set=UserData.objects.all()
 			for o in user_set:
 				try:
 					fcm=str(FcmData.objects.get(user=o).fcm)
@@ -652,7 +630,6 @@ def notify4(request):
 				except Exception as e:
 					response[keys.KEY_SUCCESS]="Failure"
 					response[keys.KEY_MESSAGE]="Error "+ str(e)
-			response["size"]= user_set.count()
 		except Exception as e:
 			response[keys.KEY_SUCCESS]="Failure"
 			response[keys.KEY_MESSAGE]="Error " + str(e)

@@ -21,3 +21,7 @@ admin.site.register(QuestionHints, QuestionHintAdmin)
 class StoryDataAdmin(admin.ModelAdmin):
 	list_display = ["id", "content", "image" ]
 admin.site.register(StoryData, StoryDataAdmin)	
+
+class BonusQuestionDataAdmin(admin.ModelAdmin):
+	list_display= ["id","name","question_no","image_url","created"]
+admin.site.register(BonusQuestionData, BonusQuestionDataAdmin)

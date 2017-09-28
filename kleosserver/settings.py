@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'n94-(h-m&-q15g)pbi*jm-_k-s4kf5+a2v^+kmh)b!j(_f)is8'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = True 
 
 ALLOWED_HOSTS = ['192.168.43.19','18.220.64.65']
 
@@ -41,7 +41,9 @@ INSTALLED_APPS = [
     'college',
     'users',
     'home',
-    'questions'
+    'questions',
+    'about_us',
+    'sponser'
 ]
 
 MIDDLEWARE_CLASSES = [

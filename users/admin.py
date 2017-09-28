@@ -23,3 +23,8 @@ class UserQuestionDataAdmin(admin.ModelAdmin):
     list_display = ["id", "user", "question","answered","timestamp" ]
 
 admin.site.register(UserQuestionData, UserQuestionDataAdmin)
+
+class UserBonusQuestionDataAdmin(admin.ModelAdmin):
+    list_display = ["id", "user", "question","answered","timestamp" ]
+
+admin.site.register(UserBonusQuestionData, UserBonusQuestionDataAdmin)

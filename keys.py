@@ -4,6 +4,7 @@ KEY_MESSAGE="message"
 KEY_VERSION="version"
 KEY_COMPULSORY_UPDATE="compulsory_update"
 
+KEY_FCM="fcm"
 KEY_ACCESS_TOKEN = "access_token"
 KEY_TEMP_ACCESS_TOKEN="temp_access_token"
 
@@ -20,6 +21,7 @@ KEY_COLLEGE_LIST="college_list"
 KEY_NAME="name"
 KEY_EMAIL="email"
 KEY_COLLEGE_NAME="college_name"
+KEY_RANK="rank"
 
 KEY_TAB_LIST='tab_list'
 KEY_TAB_TITLE='title'
@@ -37,6 +39,19 @@ KEY_QUESTION_CONTENT='question_content'
 KEY_QUESTION_IMAGE='question_img'
 KEY_QUESTION_ANSWER='answer'
 KEY_SOLVED_QUESTION_LIST='solved_question_list'
+KEY_QUESTION_HINTS='hint'
+KEY_HINT_LIST='hint_list'
+
+KEY_ANSWERED='answered'
+
+
+KEY_ABOUT_US='text'
+KEY_SPONSOR_NAME="name"
+KEY_SPONSOR_CONTENT="content"
+KEY_SPONSOR_IMAGE="image_url"
+KEY_SPONSOR_URL="web_url"
+
+KEY_SPONSOR_LIST="sponserDetails"
 
 
 KEY_ACCESS_TOKEN_ENCRYPTION="810957"
