@@ -7,6 +7,7 @@ from users.models import *
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from datetime import date, timedelta
+from random import shuffle
 
 from users.models import *
 
@@ -35,7 +36,8 @@ def sponsor_list(request):
 						temp_json[keys.KEY_SPONSOR_IMAGE]=request.scheme + '://' + request.get_host() +"/media/"+ str(o.image_url) 
 						temp_json[keys.KEY_SPONSOR_URL]=o.url
 						sponsors.append(temp_json)
-
+					
+					shuffle(sponsors)
 
 					response_json[keys.KEY_SPONSOR_LIST] = sponsors
 					response_json[keys.KEY_SUCCESS] = True
