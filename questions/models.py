@@ -34,3 +34,11 @@ class BonusQuestionData(models.Model):
 	question_no=models.IntegerField(null=False,blank=False,default=0)
 	created=models.DateTimeField(auto_now=False, auto_now_add=True)
 	image_url=models.ImageField(upload_to='media/bonus_questions/',blank=True,null=True)
+
+        def __unicode__(self):
+                return str(self.name)
+
+
+class BonusQuestionHints(models.Model):
+	question=models.ForeignKey(BonusQuestionData)
+	hint=models.CharField(max_length=1000, blank=True, null=True)

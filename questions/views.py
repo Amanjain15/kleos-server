@@ -379,6 +379,23 @@ def hints(request):
 
 				if user_instance.exists():
 					hints_list=[]
+
+                                        try:
+                                                bonus_set=BonusQuestionData.objects.all()
+                                                if bonus_set.exists():
+                                                        for o in bonus_set:
+                                                                temp_json={}
+                                                                temp_json[keys.KEY_QUESTION_NAME]=o.name
+                                                                temp_json[keys.KEY_QUESTION_NO]=o.question_no
+                                                                hint_instance = BonusQuestionHints.objects.get(question=o)
+                                                                temp_json[keys.KEY_QUESTION_HINTS]=hint_instance.hint
+
+                                                                temp_json[keys.KEY_QUESTION_IMAGE]=request.scheme + '://' + request.get_host() +"/media/"+ str(o.image_url)
+                                                                hints_list.append(temp_json)
+                                        except Exception as e:
+                                                print"No Bonus Hints " + str(e)
+
+
 					for o in QuestionHints.objects.all().order_by("-id"):
 						temp_json={}
 						temp_json[keys.KEY_QUESTION_NAME]=o.question.name
@@ -387,6 +404,7 @@ def hints(request):
 						question_img_data = QuestionImageData.objects.get(question=o.question)
 						temp_json[keys.KEY_QUESTION_IMAGE]=request.scheme + '://' + request.get_host() +"/media/"+ str(question_img_data.image_url) 
 						hints_list.append(temp_json)
+
 					response[keys.KEY_HINT_LIST]=hints_list
 					response[keys.KEY_SUCCESS]=True
 					response[keys.KEY_MESSAGE]="Success"

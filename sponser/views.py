@@ -7,6 +7,7 @@ from users.models import *
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from datetime import date, timedelta
+from random import shuffle
 
 from users.models import *
 
@@ -27,6 +28,7 @@ def sponsor_list(request):
 				user_instance=UserData.objects.filter(mobile=mobile)		
 				if user_instance.exists():
 					sponsor_data=SponsorData.objects.all()
+					
 					sponsors=[]
 					for o in sponsor_data:
 						temp_json={}
@@ -36,7 +38,7 @@ def sponsor_list(request):
 						temp_json[keys.KEY_SPONSOR_URL]=o.url
 						sponsors.append(temp_json)
 
-
+					shuffle(sponsors)
 					response_json[keys.KEY_SPONSOR_LIST] = sponsors
 					response_json[keys.KEY_SUCCESS] = True
 					response_json[keys.KEY_MESSAGE] = "Successful"
