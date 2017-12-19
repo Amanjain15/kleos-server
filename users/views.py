@@ -8,6 +8,7 @@ from datetime import date, timedelta
 from college.views import *
 from sms import send_sms
 
+import requests
 import keys
 import jwt
 import random
@@ -371,7 +372,7 @@ def profile(request):
 					response_json[keys.KEY_COLLEGE_NAME]=user_instance.college
 					response_json[keys.KEY_SUCCESS] = True
 					response_json[keys.KEY_MESSAGE] = "Success"
-					response_json[keys.KEY_RANK]=rank(mobile) 
+					response_json[keys.KEY_RANK]=str(rank(mobile))
 				else:
 					response_json[keys.KEY_SUCCESS] = False
 					response_json[keys.KEY_MESSAGE] = "Invalid User"
@@ -443,12 +444,19 @@ def rank(mobile):
 		raise
 	return i
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 11e39a93abdf62bb36736f267a9e52f385bd17ed
 def leader_board(request):
 	response={}
 	if(request.method == 'GET'):
 		try:
+<<<<<<< HEAD
 			access_token = request.POST.get(keys.KEY_ACCESS_TOKEN)
+=======
+			access_token = request.GET.get(keys.KEY_ACCESS_TOKEN)
+>>>>>>> 11e39a93abdf62bb36736f267a9e52f385bd17ed
 			print access_token
 			json1 = jwt.decode(str(access_token), keys.KEY_ACCESS_TOKEN_ENCRYPTION, algorithms=['HS256'])
 			mobile = str(json1[keys.KEY_ACCESS_TOKEN])
@@ -459,6 +467,7 @@ def leader_board(request):
 					i=1
 					rank_list=[]
 					for o in user_set[:10]:
+<<<<<<< HEAD
 						temp_json[keys.KEY_RANK]=i
 						temp_json[keys.KEY_NAME]=o.name
 						temp_json[keys.KEY_QUESTION_NO]=str(o.last_question_answered)
@@ -475,6 +484,65 @@ def leader_board(request):
 		except Exception as e:
 			response_json[keys.KEY_SUCCESS] = False
 			response_json[keys.KEY_MESSAGE] = str(e)
+=======
+						temp_json={}
+						temp_json[keys.KEY_RANK]=i
+						temp_json[keys.KEY_NAME]=o.name
+						temp_json[keys.KEY_QUESTION_NO]=str(o.last_question_answered)
+						i=i+1
+						rank_list.append(temp_json)
+
+					response["rank_list"]=rank_list
+					response[keys.KEY_SUCCESS] = True
+					response[keys.KEY_MESSAGE] = "Successfull"	
+			except Exception as e:
+				response[keys.KEY_SUCCESS] = False
+				response[keys.KEY_MESSAGE] = str(e)
+
+		except Exception as e:
+			response[keys.KEY_SUCCESS] = False
+			response[keys.KEY_MESSAGE] = str(e)
+	print response
+	return JsonResponse(response)
+
+@csrf_exempt
+def notify(request):
+	response={}
+	if request.method == 'GET':
+		key =  request.GET.get(keys.KEY_ACCESS_TOKEN)
+		if key != "Aman@1596":
+			return JsonResponse(response)
+		try:
+			user_set=UserData.objects.all()
+			for o in user_set:
+				try:
+					fcm=str(FcmData.objects.get(user=o).fcm)
+					print o.last_question_answered
+					if o.last_question_answered == 0:
+						body="Answer : VALAR MORGHULIS"
+						title="Question 1"
+					if o.last_question_answered == 1:
+						body="Answer : JOINT CIPHER BUREAU"
+						title="Question 2"
+					if o.last_question_answered == 2:
+						body="Answer : ZEE SHAAN HUSSAIN"
+						title="Question 3"
+					if o.last_question_answered == 3:
+						body="Answer : IRAQ"
+						title="Question 4"
+					if o.last_question_answered == 4:
+						body="Answer : ABU GHARIB / 9045"
+						title="Question 5"
+					notify_users(fcm,body,title)
+					response[keys.KEY_SUCCESS]="Success"
+					response[keys.KEY_MESSAGE]="SuccessFull"
+				except Exception as e:
+					response[keys.KEY_SUCCESS]="Failure"
+					response[keys.KEY_MESSAGE]="Error "+ str(e)
+		except Exception as e:
+			response[keys.KEY_SUCCESS]="Failure"
+			response[keys.KEY_MESSAGE]="Error " + str(e)
+>>>>>>> 11e39a93abdf62bb36736f267a9e52f385bd17ed
 	print response
 	return JsonResponse(response)
 
@@ -483,7 +551,12 @@ def notify0(request):
 	response={}
 	if request.method == 'GET':
 		key =  request.GET.get(keys.KEY_ACCESS_TOKEN)
+<<<<<<< HEAD
 		if key != keys.KEY_AUTH_KEY:
+=======
+		print key
+		if key != "Aman@1596":
+>>>>>>> 11e39a93abdf62bb36736f267a9e52f385bd17ed
 			return JsonResponse(response)
 		try:
 			user_set=UserData.objects.filter(last_question_answered=0)
@@ -494,13 +567,19 @@ def notify0(request):
 						body="Answer : VALAR MORGHULIS"
 						title="Question 1"
 						notify_users(fcm,body,title)
+<<<<<<< HEAD
 
+=======
+>>>>>>> 11e39a93abdf62bb36736f267a9e52f385bd17ed
 					response[keys.KEY_SUCCESS]="Success"
 					response[keys.KEY_MESSAGE]="SuccessFull"
 				except Exception as e:
 					response[keys.KEY_SUCCESS]="Failure"
 					response[keys.KEY_MESSAGE]="Error "+ str(e)
+<<<<<<< HEAD
 					
+=======
+>>>>>>> 11e39a93abdf62bb36736f267a9e52f385bd17ed
 			response["size"]= user_set.count()
 		except Exception as e:
 			response[keys.KEY_SUCCESS]="Failure"
@@ -512,6 +591,12 @@ def notify0(request):
 def notify1(request):
 	response={}
 	if request.method == 'GET':
+<<<<<<< HEAD
+=======
+		key =  request.GET.get(keys.KEY_ACCESS_TOKEN)
+		if key != "Aman@1596":
+			return JsonResponse(response)
+>>>>>>> 11e39a93abdf62bb36736f267a9e52f385bd17ed
 		try:
 			user_set=UserData.objects.filter(last_question_answered=1)
 			for o in user_set:
@@ -526,6 +611,10 @@ def notify1(request):
 				except Exception as e:
 					response[keys.KEY_SUCCESS]="Failure"
 					response[keys.KEY_MESSAGE]="Error "+ str(e)
+<<<<<<< HEAD
+=======
+			response["size"]= user_set.count()
+>>>>>>> 11e39a93abdf62bb36736f267a9e52f385bd17ed
 		except Exception as e:
 			response[keys.KEY_SUCCESS]="Failure"
 			response[keys.KEY_MESSAGE]="Error " + str(e)
@@ -536,6 +625,12 @@ def notify1(request):
 def notify2(request):
 	response={}
 	if request.method == 'GET':
+<<<<<<< HEAD
+=======
+		key =  request.GET.get(keys.KEY_ACCESS_TOKEN)
+		if key != "Aman@1596":
+			return JsonResponse(response)
+>>>>>>> 11e39a93abdf62bb36736f267a9e52f385bd17ed
 		try:
 			user_set=UserData.objects.filter(last_question_answered=2)
 			for o in user_set:
@@ -550,6 +645,10 @@ def notify2(request):
 				except Exception as e:
 					response[keys.KEY_SUCCESS]="Failure"
 					response[keys.KEY_MESSAGE]="Error "+ str(e)
+<<<<<<< HEAD
+=======
+			response["size"]= user_set.count()
+>>>>>>> 11e39a93abdf62bb36736f267a9e52f385bd17ed
 		except Exception as e:
 			response[keys.KEY_SUCCESS]="Failure"
 			response[keys.KEY_MESSAGE]="Error " + str(e)
@@ -560,6 +659,12 @@ def notify2(request):
 def notify3(request):
 	response={}
 	if request.method == 'GET':
+<<<<<<< HEAD
+=======
+		key =  request.GET.get(keys.KEY_ACCESS_TOKEN)
+		if key != "Aman@1596":
+			return JsonResponse(response)
+>>>>>>> 11e39a93abdf62bb36736f267a9e52f385bd17ed
 		try:
 			user_set=UserData.objects.filter(last_question_answered=3)
 			for o in user_set:
@@ -574,6 +679,10 @@ def notify3(request):
 				except Exception as e:
 					response[keys.KEY_SUCCESS]="Failure"
 					response[keys.KEY_MESSAGE]="Error "+ str(e)
+<<<<<<< HEAD
+=======
+			response["size"]= user_set.count()
+>>>>>>> 11e39a93abdf62bb36736f267a9e52f385bd17ed
 		except Exception as e:
 			response[keys.KEY_SUCCESS]="Failure"
 			response[keys.KEY_MESSAGE]="Error " + str(e)
@@ -584,6 +693,12 @@ def notify3(request):
 def notify4(request):
 	response={}
 	if request.method == 'GET':
+<<<<<<< HEAD
+=======
+		key =  request.GET.get(keys.KEY_ACCESS_TOKEN)
+		if key != "Aman@1596":
+			return JsonResponse(response)
+>>>>>>> 11e39a93abdf62bb36736f267a9e52f385bd17ed
 		try:
 			user_set=UserData.objects.filter(last_question_answered=4)
 			for o in user_set:
@@ -598,6 +713,10 @@ def notify4(request):
 				except Exception as e:
 					response[keys.KEY_SUCCESS]="Failure"
 					response[keys.KEY_MESSAGE]="Error "+ str(e)
+<<<<<<< HEAD
+=======
+			response["size"]= user_set.count()
+>>>>>>> 11e39a93abdf62bb36736f267a9e52f385bd17ed
 		except Exception as e:
 			response[keys.KEY_SUCCESS]="Failure"
 			response[keys.KEY_MESSAGE]="Error " + str(e)
@@ -605,6 +724,11 @@ def notify4(request):
 	return JsonResponse(response)
 
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 11e39a93abdf62bb36736f267a9e52f385bd17ed
 @csrf_exempt
 def notify_users(fcm, body, title):
 	json = {
@@ -625,6 +749,7 @@ def notify_users(fcm, body, title):
 
 	}
 	r = requests.post(url, headers=headers, json=json)
+<<<<<<< HEAD
 
 @csrf_exempt
 def pass_decode(request):
@@ -655,3 +780,5 @@ def export_users_csv(request):
 		writer.writerow(user)
 
 	return response
+=======
+>>>>>>> 11e39a93abdf62bb36736f267a9e52f385bd17ed

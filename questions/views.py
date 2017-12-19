@@ -191,6 +191,7 @@ def question_list(request):
 			print access_token
 			json= jwt.decode(str(access_token),keys.KEY_ACCESS_TOKEN_ENCRYPTION,algorithms=['HS256'])
 			mobile=str(json[keys.KEY_ACCESS_TOKEN])
+			print(mobile)
 			try:
 				user_instance=UserData.objects.filter(mobile=mobile)
 				if user_instance.exists():
@@ -203,6 +204,14 @@ def question_list(request):
 						answer=answer.replace(" ","")
 						if answer == stored_answer:
 							try:
+								try:
+									user_question_data= UserQuestionData.objects.get(user=user_instance,question=question_datas)
+									response_json[keys.KEY_SUCCESS]=False
+									response_json[keys.KEY_MESSAGE]="Already Answered"
+									return JsonResponse(response_json)
+								except Exception as e:
+									print str(e)
+									
 								user_question_data=UserQuestionData.objects.create(
 																					user=user_instance,
 																					question=question_datas,
@@ -290,6 +299,7 @@ def bonus(request):
 																					question=question,
 																					answered=False
 													)
+					print "reached"
 					print str(user_bonus_question_data.answered)
 
 					if user_bonus_question_data.answered:
@@ -307,10 +317,10 @@ def bonus(request):
 					response[keys.KEY_MESSAGE]="Success"
 				else:
 					response[keys.KEY_SUCCESS]=False
-					response[keys.KEY_MESSAGE]="Invalid User"					
+					response[keys.KEY_MESSAGE]="Invalid User "					
 			except Exception as e:
 				response[keys.KEY_SUCCESS]=False
-				response[keys.KEY_MESSAGE]="Error Finding User"
+				response[keys.KEY_MESSAGE]="Error Finding User "+str(e)
 		except Exception as e:
 			response[keys.KEY_SUCCESS]=False
 			response[keys.KEY_MESSAGE]="Decoding Error "+str(e)
@@ -370,6 +380,7 @@ def hints(request):
 				if user_instance.exists():
 					hints_list=[]
 					try:
+<<<<<<< HEAD
 						bonus_set=BonusQuestionHints.objects.all().order_by("id")
 						if bonus_set.exists():
 							for o in bonus_set:
@@ -382,6 +393,21 @@ def hints(request):
 					except Exception as e:
 						print"No Bonus Hints " + str(e)
 					for o in QuestionHints.objects.all():
+=======
+						bonus_set=BonusQuestionData.objects.all()
+						if bonus_set.exists():
+							for o in bonus_set:
+								temp_json={}
+								temp_json[keys.KEY_QUESTION_NAME]=o.name
+								temp_json[keys.KEY_QUESTION_NO]=o.question_no
+								hint_instance = BonusQuestionHints.objects.get(question=o)
+								temp_json[keys.KEY_QUESTION_HINTS]=hint_instance.hint
+								temp_json[keys.KEY_QUESTION_IMAGE]=request.scheme + '://' + request.get_host() +"/media/"+ str(o.image_url) 
+								hints_list.append(temp_json)
+					except Exception as e:
+						print"No Bonus Hints " + str(e)
+					for o in QuestionHints.objects.all().order_by("-id"):
+>>>>>>> 11e39a93abdf62bb36736f267a9e52f385bd17ed
 						temp_json={}
 						temp_json[keys.KEY_QUESTION_NAME]=o.question.name
 						temp_json[keys.KEY_QUESTION_NO]=o.question.question_no

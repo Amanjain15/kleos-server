@@ -28,4 +28,8 @@ admin.site.register(BonusQuestionData, BonusQuestionDataAdmin)
 
 class BonusQuestionHintAdmin(admin.ModelAdmin):
 	list_display = ["id", "question", "hint" ]
+<<<<<<< HEAD
 admin.site.register(BonusQuestionHints, BonusQuestionHintAdmin)	
+=======
+admin.site.register(BonusQuestionHints, BonusQuestionHintAdmin)	
+>>>>>>> 11e39a93abdf62bb36736f267a9e52f385bd17ed

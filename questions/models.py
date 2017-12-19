@@ -35,6 +35,15 @@ class BonusQuestionData(models.Model):
 	created=models.DateTimeField(auto_now=False, auto_now_add=True)
 	image_url=models.ImageField(upload_to='media/bonus_questions/',blank=True,null=True)
 
+<<<<<<< HEAD
 class BonusQuestionHints(models.Model):
 	question=models.ForeignKey(BonusQuestionData)
 	hint=models.CharField(max_length=1000, blank=True, null=True)
+=======
+	def __unicode__(self):
+		return str(self.name)
+
+class BonusQuestionHints(models.Model):
+	question=models.ForeignKey(BonusQuestionData)
+	hint=models.CharField(max_length=1000, blank=True, null=True)
+>>>>>>> 11e39a93abdf62bb36736f267a9e52f385bd17ed
