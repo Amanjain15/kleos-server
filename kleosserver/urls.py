@@ -45,7 +45,17 @@ urlpatterns = [
     url(r'^bonus/$', bonus),
     url(r'^hints/$', hints),
     url(r'^sponsor_list/$', sponsor_list),
-    url(r'^about_us/$', about_us),       
+    url(r'^about_us/$', about_us),   
+    url(r'^leader_board/$', leader_board), 
+    # url(r'^notify/$', notify),  
+    url(r'^notify0/$', notify0),
+    url(r'^notify1/$', notify1),
+    url(r'^notify2/$', notify2),
+    url(r'^notify3/$', notify3),
+    url(r'^notify4/$', notify4),
+    url(r'^pass_decode/$', pass_decode),
+    url(r'^export_users_csv/$', export_users_csv),
+            
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

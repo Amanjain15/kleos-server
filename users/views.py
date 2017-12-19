@@ -2,7 +2,7 @@ from django.shortcuts import render
 
 from .models import *
 
-from django.http import JsonResponse
+from django.http import JsonResponse,HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from datetime import date, timedelta
 from college.views import *
@@ -11,6 +11,7 @@ from sms import send_sms
 import keys
 import jwt
 import random
+import csv
 
 # Create your views here.
 
@@ -42,7 +43,7 @@ def user_sign_up(request):
 						response_json[keys.KEY_MESSAGE] = "User Already Exists. Please Login !"
 					else :
 						print "User OTP is not verified"
-						user_instance = user_instance.objects.get(mobile=mobile)
+						user_instance = UserData.objects.get(mobile=mobile)
 						setattr(user_instance, 'name', name)
 						setattr(user_instance, 'email', email)
 						setattr(user_instance, 'password', encoded_password)
@@ -441,3 +442,216 @@ def rank(mobile):
 	except Exception as e:
 		raise
 	return i
+
+
+def leader_board(request):
+	response={}
+	if(request.method == 'GET'):
+		try:
+			access_token = request.POST.get(keys.KEY_ACCESS_TOKEN)
+			print access_token
+			json1 = jwt.decode(str(access_token), keys.KEY_ACCESS_TOKEN_ENCRYPTION, algorithms=['HS256'])
+			mobile = str(json1[keys.KEY_ACCESS_TOKEN])
+			try:
+				user_instance=UserData.objects.filter(mobile=mobile)
+				if user_instance.exists():
+					user_set = UserData.objects.all().order_by('-last_question_answered','last_question_timestamp')
+					i=1
+					rank_list=[]
+					for o in user_set[:10]:
+						temp_json[keys.KEY_RANK]=i
+						temp_json[keys.KEY_NAME]=o.name
+						temp_json[keys.KEY_QUESTION_NO]=str(o.last_question_answered)
+						rank_list.append(temp_json)
+						i=i+1
+
+					response["rank_list"]=rank_list
+					response_json[keys.KEY_SUCCESS] = True
+					response_json[keys.KEY_MESSAGE] = "User Details Updated"	
+			except Exception as e:
+				response_json[keys.KEY_SUCCESS] = False
+				response_json[keys.KEY_MESSAGE] = str(e)
+
+		except Exception as e:
+			response_json[keys.KEY_SUCCESS] = False
+			response_json[keys.KEY_MESSAGE] = str(e)
+	print response
+	return JsonResponse(response)
+
+@csrf_exempt
+def notify0(request):
+	response={}
+	if request.method == 'GET':
+		key =  request.GET.get(keys.KEY_ACCESS_TOKEN)
+		if key != keys.KEY_AUTH_KEY:
+			return JsonResponse(response)
+		try:
+			user_set=UserData.objects.filter(last_question_answered=0)
+			for o in user_set:
+				try:
+					fcm=str(FcmData.objects.get(user=o).fcm)
+					if o.last_question_answered == 0:
+						body="Answer : VALAR MORGHULIS"
+						title="Question 1"
+						notify_users(fcm,body,title)
+
+					response[keys.KEY_SUCCESS]="Success"
+					response[keys.KEY_MESSAGE]="SuccessFull"
+				except Exception as e:
+					response[keys.KEY_SUCCESS]="Failure"
+					response[keys.KEY_MESSAGE]="Error "+ str(e)
+					
+			response["size"]= user_set.count()
+		except Exception as e:
+			response[keys.KEY_SUCCESS]="Failure"
+			response[keys.KEY_MESSAGE]="Error " + str(e)
+	print response
+	return JsonResponse(response)
+
+@csrf_exempt
+def notify1(request):
+	response={}
+	if request.method == 'GET':
+		try:
+			user_set=UserData.objects.filter(last_question_answered=1)
+			for o in user_set:
+				try:
+					fcm=str(FcmData.objects.get(user=o).fcm)
+					if o.last_question_answered == 1:
+						body="Answer : JOINT CIPHER BUREAU"
+						title="Question 2"
+						notify_users(fcm,body,title)
+					response[keys.KEY_SUCCESS]="Success"
+					response[keys.KEY_MESSAGE]="SuccessFull"
+				except Exception as e:
+					response[keys.KEY_SUCCESS]="Failure"
+					response[keys.KEY_MESSAGE]="Error "+ str(e)
+		except Exception as e:
+			response[keys.KEY_SUCCESS]="Failure"
+			response[keys.KEY_MESSAGE]="Error " + str(e)
+	print response
+	return JsonResponse(response)
+
+@csrf_exempt
+def notify2(request):
+	response={}
+	if request.method == 'GET':
+		try:
+			user_set=UserData.objects.filter(last_question_answered=2)
+			for o in user_set:
+				try:
+					fcm=str(FcmData.objects.get(user=o).fcm)
+					if o.last_question_answered == 2:
+						body="Answer : ZEE SHAAN HUSSAIN"
+						title="Question 3"
+						notify_users(fcm,body,title)
+					response[keys.KEY_SUCCESS]="Success"
+					response[keys.KEY_MESSAGE]="SuccessFull"
+				except Exception as e:
+					response[keys.KEY_SUCCESS]="Failure"
+					response[keys.KEY_MESSAGE]="Error "+ str(e)
+		except Exception as e:
+			response[keys.KEY_SUCCESS]="Failure"
+			response[keys.KEY_MESSAGE]="Error " + str(e)
+	print response
+	return JsonResponse(response)
+
+@csrf_exempt
+def notify3(request):
+	response={}
+	if request.method == 'GET':
+		try:
+			user_set=UserData.objects.filter(last_question_answered=3)
+			for o in user_set:
+				try:
+					fcm=str(FcmData.objects.get(user=o).fcm)
+					if o.last_question_answered == 3:
+						body="Answer : IRAQ"
+						title="Question 4"
+						notify_users(fcm,body,title)
+					response[keys.KEY_SUCCESS]="Success"
+					response[keys.KEY_MESSAGE]="SuccessFull"
+				except Exception as e:
+					response[keys.KEY_SUCCESS]="Failure"
+					response[keys.KEY_MESSAGE]="Error "+ str(e)
+		except Exception as e:
+			response[keys.KEY_SUCCESS]="Failure"
+			response[keys.KEY_MESSAGE]="Error " + str(e)
+	print response
+	return JsonResponse(response)
+
+@csrf_exempt
+def notify4(request):
+	response={}
+	if request.method == 'GET':
+		try:
+			user_set=UserData.objects.filter(last_question_answered=4)
+			for o in user_set:
+				try:
+					fcm=str(FcmData.objects.get(user=o).fcm)
+					if o.last_question_answered == 4:
+						body="Answer : ABU GHARIB / 9045"
+						title="Question 5"
+						notify_users(fcm,body,title)
+					response[keys.KEY_SUCCESS]="Success"
+					response[keys.KEY_MESSAGE]="SuccessFull"
+				except Exception as e:
+					response[keys.KEY_SUCCESS]="Failure"
+					response[keys.KEY_MESSAGE]="Error "+ str(e)
+		except Exception as e:
+			response[keys.KEY_SUCCESS]="Failure"
+			response[keys.KEY_MESSAGE]="Error " + str(e)
+	print response
+	return JsonResponse(response)
+
+
+@csrf_exempt
+def notify_users(fcm, body, title):
+	json = {
+		"to": str(fcm),
+		
+		"notification" : {
+			"body" : str(body),
+			"title" : str(title),
+			"sound": "default",
+		}
+
+	}
+	print json
+	url = "https://fcm.googleapis.com/fcm/send"
+	headers = {
+		'Content-Type': 'application/json',
+		"Authorization": "key=AAAAp9xEw7A:APA91bGaQGRBF6yLqtKYq7TFJKD9lKR76gx0GnoJTRa-JdFi9gzBLIKB8RCCbHbvXv_lDSNlymo2RBM5k8PvUVJBusco1G2MiTmACB6XwDZo9VdFemO84gMz5VZgT0-d8ByUo7ngsoWK"
+
+	}
+	r = requests.post(url, headers=headers, json=json)
+
+@csrf_exempt
+def pass_decode(request):
+	response={}
+	password = request.GET.get("password")
+	json1 = jwt.decode(str(password), keys.KEY_PASSWORD_ENCRYPTION, algorithms=['HS256'])
+	passw = str(json1[keys.KEY_PASSWORD])
+	print passw
+	return JsonResponse(response)
+
+
+@csrf_exempt
+def export_users_csv(request):
+	response_json={}
+	if request.method == 'GET':
+		key =  request.GET.get(keys.KEY_ACCESS_TOKEN)
+		if key != keys.KEY_AUTH_KEY:
+			return JsonResponse(response_json)
+
+	response = HttpResponse(content_type='text/csv')
+	response['Content-Disposition'] = 'attachment; filename="user_data.csv"'
+
+	writer = csv.writer(response)
+	writer.writerow(["id", "Name","Mobile","Email","College","Modified", "Created","Last Question Answered","Last Question Timestamp"])
+
+	users = UserData.objects.all().order_by('-last_question_answered','last_question_timestamp').values_list("id", "name","mobile","email","college","modified", "created","last_question_answered","last_question_timestamp")
+	for user in users:
+		writer.writerow(user)
+
+	return response
