@@ -6,6 +6,7 @@ from users.models import *
 class UserDataAdmin(admin.ModelAdmin):
     list_display = ["id", "name","mobile","email","college","modified", "created","last_question_answered"
     				,"last_question_timestamp"]
+    search_fields=["name","email","college","mobile"]
 
 admin.site.register(UserData, UserDataAdmin)
 

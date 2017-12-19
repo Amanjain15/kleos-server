@@ -2,7 +2,7 @@ from django.shortcuts import render
 
 from .models import *
 
-from django.http import JsonResponse
+from django.http import JsonResponse,HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from datetime import date, timedelta
 from college.views import *
@@ -12,7 +12,7 @@ import requests
 import keys
 import jwt
 import random
-
+import csv
 # Create your views here.
 
 @csrf_exempt
@@ -682,3 +682,24 @@ def notify_users(fcm, body, title):
 
 	}
 	r = requests.post(url, headers=headers, json=json)
+
+
+@csrf_exempt
+def export_users_csv(request):
+	response_json={}
+	if request.method == 'GET':
+		key =  request.GET.get(keys.KEY_ACCESS_TOKEN)
+		if key != "Aman@1596":
+			return JsonResponse(response_json)
+
+	response = HttpResponse(content_type='text/csv')
+	response['Content-Disposition'] = 'attachment; filename="user_data.csv"'
+
+	writer = csv.writer(response)
+	writer.writerow(["id", "Name","Mobile","Email","College","Modified", "Created","Last Question Answered","Last Question Timestamp"])
+
+	users = UserData.objects.all().order_by('-last_question_answered','last_question_timestamp').values_list("id", "name","mobile","email","college","modified", "created","last_question_answered","last_question_timestamp")
+	for user in users:
+		writer.writerow(user)
+
+	return response
